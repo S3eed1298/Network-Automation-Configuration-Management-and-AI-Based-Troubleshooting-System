@@ -65,6 +65,13 @@ class HttpStatus(Enum):
     GATEWAY_TIMEOUT = 504
     HTTP_VERSION_NOT_SUPPORTED = 505
 
+def get_status_message(status_code):
+    """Return the corresponding status message from HttpStatus."""
+    for status in HttpStatus:
+        if status.value == int(status_code):
+            return status.name.replace("_", " ").title()
+    return "Unknown Status Code"
+
 
 def init_db():
     conn = sqlite3.connect('devices.db')
@@ -169,7 +176,6 @@ def show_devices():
     for device in devices:
         print(f"Name: {device['name']}, IP: {device['ip']}, Username: {device['username']}, Password: {device['password']}")
 
-# Done
 def select_device():
     devices = get_devices()
     if not devices:
@@ -190,7 +196,7 @@ def select_device():
         else:
             print("\nInvalid choice, try again!")
 
-# Done 
+
 def api_call(url, payload, http_method, devices):
     headers = {
         'Content-Type': 'application/yang-data+json',
@@ -233,7 +239,7 @@ def api_call(url, payload, http_method, devices):
             })
     return responses
     
-# Done
+
 def monitor_menu():
     while True:
         print("\nSelect what to monitor: ")
@@ -269,7 +275,6 @@ def monitor_menu():
             case _:
                 print("\nInvalid choice, try again!")
 
-# Done
 def handle_configuration():
     while True:
         print("\nSelect type of configuration:")
@@ -292,8 +297,6 @@ def handle_configuration():
             case _:
                 print("\nInvalid choice, try again!")
 
-
-# Done
 def configuration_menu(device):
     while True:
         print("\nSelect what to configure: ")
@@ -324,7 +327,6 @@ def configuration_menu(device):
             case _:
                 print("\nInvalid choice, try again!")
 
-# Done
 def configuration_templates_menu():
     while True:
         print("\nTemplates options:")
@@ -343,7 +345,6 @@ def configuration_templates_menu():
             case _:
                 print("\nInvalid choice, try again!")
 
-# Done
 def manage_devices_menu():
     while True:
         print("\nManage Devices:")
@@ -364,8 +365,7 @@ def manage_devices_menu():
                 break
             case _:
                 print("\nInvalid choice, try again!")
-
-# Done       
+     
 def troubleshooting_menu():
     while True:
         print("\nSelect what to troubleshoot: ")
@@ -398,7 +398,7 @@ def troubleshooting_menu():
             case _:
                 print("\nInvalid choice, try again!")
 
-# Done
+
 def manage_templates():
     """
     Menu for managing templates, including creating and deleting templates.
@@ -419,7 +419,6 @@ def manage_templates():
         else:
             print("\nInvalid choice, yry again!")
 
-# Done
 def template_name_validator():
     while True:
         name = input("Enter the name of the template: ").strip()
@@ -430,7 +429,6 @@ def template_name_validator():
         else:
             return name
 
-# Done
 def create_template():
     while True:
         """Allows the user to create a configuration template."""
@@ -473,7 +471,6 @@ def create_template():
         except Exception as e:
             print(f"Error creating template: {e}")
 
-# Done
 def delete_template():
     """Allows the user to delete an existing configuration template."""
     if not templates:
@@ -497,7 +494,7 @@ def delete_template():
             print("Invalid choice.")
     except ValueError:
         print("Please enter a valid number.")
-# Done
+
 def use_template():
     """Allows the user to use an existing configuration template."""
     if not templates:
@@ -542,14 +539,14 @@ def use_template():
         print("Please enter a valid number." )
 
 
-# Done
+
 def fetch_CPU_Usage(device):
     endpoint = "Cisco-IOS-XE-process-cpu-oper:cpu-usage/cpu-utilization/one-minute"
     responses = api_call(url + endpoint, None, "GET", device)
 
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print ("Status: " + response['status']+ "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if response['error']:
             print(f"Error: {response['error']}")
             continue
@@ -561,14 +558,14 @@ def fetch_CPU_Usage(device):
             print("Invalid JSON response")
         except KeyError:
             print("Unexpected response format")
-# Done
+
 def fetch_Memory_Usage(device):
     endpoint = "Cisco-IOS-XE-memory-oper:memory-statistics/memory-statistic"
 
     responses = api_call(url + endpoint, None, "GET", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if response['error']:
             print(f"Error: {response['error']}")
             continue
@@ -598,14 +595,14 @@ def fetch_Memory_Usage(device):
             print("Invalid JSON response")
         except KeyError:
             print("Unexpected response format")
-# Done    
+   
 def fetch_version(device):
     endpoint = "Cisco-IOS-XE-native:native/version"
 
     responses = api_call(url + endpoint, None, "GET", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'])
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if response['error']:
             print(f"Error: {response['error']}")
             continue
@@ -616,14 +613,14 @@ def fetch_version(device):
             print("Invalid JSON response")
         except KeyError:
             print("Unexpected response format")
-# Done
+
 def fetch_environmental_details(device):
     endpoint = "Cisco-IOS-XE-environment-oper:environment-sensors/environment-sensor"  
 
     responses = api_call(url + endpoint, None, "GET", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'])
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if response['error']:
             print(f"Error: {response['error']}")
             continue
@@ -647,14 +644,14 @@ def fetch_environmental_details(device):
             print("Invalid JSON response")
         except KeyError:
             print("Unexpected response format")
-# Done
+
 def fetch_call_home_profiles(device):
     endpoint = "Cisco-IOS-XE-native:native/call-home/Cisco-IOS-XE-call-home:profile"
 
     responses = api_call(url + endpoint, None, "GET", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'])
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if response['error']:
             print(f"Error: {response['error']}")
             continue
@@ -664,14 +661,14 @@ def fetch_call_home_profiles(device):
             print("Invalid JSON response")
         except KeyError:
             print("Unexpected response format")
-# Done
+
 def fetch_vrfs(device):
     endpoint = "Cisco-IOS-XE-native:native/ip/vrf"
 
     responses = api_call(url + endpoint, None, "GET", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'])
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if response['error']:
             print(f"Error: {response['error']}")
             continue
@@ -681,7 +678,7 @@ def fetch_vrfs(device):
             print("Invalid JSON response")
         except KeyError:
             print("Unexpected response format")
-# Done
+
 def fetch_interfaces(device):  
     """Allows the user to select the interface type."""
     interfaceTypes = ["GigabitEthernet", "TenGigabitEthernet", "HundredGigE", "Loopback"]
@@ -691,19 +688,19 @@ def fetch_interfaces(device):
     print("4- Loopback") 
     UserInterfaceType = int(input("Select the interface type: ").strip())
     interfaceNumber = input("Select the interface number: ").strip()
-    interface = f"{interfaceTypes[UserInterfaceType - 1]}={interfaceNumber}"
-    
+    interface = f"{interfaceTypes[UserInterfaceType - 1]}={interfaceNumber.replace('/', '%2F')}"
+    print(interface)
     endpoint = f"Cisco-IOS-XE-native:native/interface/{interface}"
 
     responses = api_call(url + endpoint, None, "GET", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print ("Status: " + response['status'])
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 
 
-# Done all templates
+
 def VRF_template():
     name = input("VRF Name: ")
     description = input("VRF Description: ")
@@ -856,7 +853,7 @@ def banner_template():
     }    
     return payLoad
 
-# Done all conf functions
+
 def configure_banner(device, payLoad=None):
     endpoint = "Cisco-IOS-XE-native:native/banner"
 
@@ -866,7 +863,7 @@ def configure_banner(device, payLoad=None):
     responses = api_call(url + endpoint, payLoad, "PATCH", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 def configure_ACL(device, payload):
@@ -878,7 +875,7 @@ def configure_ACL(device, payload):
     responses = api_call(url + endpoint, payload, "PATCH", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 def configure_vrf(device, payload = None):
@@ -890,7 +887,7 @@ def configure_vrf(device, payload = None):
     responses = api_call(url + endpoint, payload, "PATCH", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 def configure_ntp(device, payload):
@@ -902,7 +899,7 @@ def configure_ntp(device, payload):
     responses = api_call(url + endpoint, payload, "PATCH", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 def configure_snmp(device, payload):
@@ -914,7 +911,7 @@ def configure_snmp(device, payload):
     responses = api_call(url + endpoint, payload, "PATCH", device)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 def configure_call_home(devices, payload):
@@ -926,7 +923,7 @@ def configure_call_home(devices, payload):
     responses = api_call(url + endpoint, payload, "PATCH", devices)
     for response in responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
-        print (response['status'] + "\n")
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         print(response['response'].text)
 
 
@@ -938,7 +935,7 @@ def troubleshoot_CPU_AI(device):
     for response in API_responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
         code = int(response['status'])
-        print(HttpStatus(code))
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if code == 200:
             print("GenAI analysis is: \n\n\n")
             AI_response = model.generate_content(prompt + response['response'].text)
@@ -954,7 +951,7 @@ def troubleshoot_memory_AI(device):
     for response in API_responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
         code = int(response['status'])
-        print(HttpStatus(code))
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if code == 200:
             print("GenAI analysis is: \n\n\n")
             AI_response = model.generate_content(prompt + response['response'].text)
@@ -970,7 +967,7 @@ def troubleshoot_environment_AI(device):
     for response in API_responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
         code = int(response['status'])
-        print(HttpStatus(code))
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if code == 200:
             print("GenAI analysis is: \n\n\n")
             AI_response = model.generate_content(prompt + response['response'].text)
@@ -986,7 +983,7 @@ def troubleshoot_BGP_AI(device):
     for response in API_responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
         code = int(response['status'])
-        print(HttpStatus(code))
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if code == 200:
             print("GenAI analysis is: \n\n\n")
             AI_response = model.generate_content(prompt + response['response'].text)
@@ -1002,7 +999,7 @@ def troubleshoot_OSPF_AI(device):
     for response in API_responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
         code = int(response['status'])
-        print(HttpStatus(code))
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if code == 200:
             print("GenAI analysis is: \n\n\n")
             AI_response = model.generate_content(prompt + response['response'].text)
@@ -1018,7 +1015,7 @@ def troubleshoot_interfaces_AI(device):
     for response in API_responses:
         print(f"\nDevice: {response['device']} ({response['ip']})")
         code = int(response['status'])
-        print(HttpStatus(code))
+        print ("Status: " + get_status_message(response['status'])+ "\n")
         if code == 200:
             print("GenAI analysis is: \n\n\n")
             AI_response = model.generate_content(prompt + response['response'].text)
